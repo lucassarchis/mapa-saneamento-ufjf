@@ -1,0 +1,952 @@
+/* ==========================================================================
+   Estilos Principais - Mapa Interativo de Saneamento e Reúso
+   Pesquisa: Normativos e padrões de lançamento e reúso de esgotos sanitários
+   Autora: Katryne Karla Dutra Lopes | UFJF - Engenharia Sanitária e Ambiental
+   ========================================================================== */
+
+:root {
+  /* Paleta Neutra e Elegante */
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-header: #ffffff;
+
+  /* Cores Neutras do Mapa (Não Chamativas) */
+  --map-state-default: #94a3b8;
+  --map-state-subtle: #cbd5e1;
+  --map-state-border: #ffffff;
+  --map-state-hover: #38bdf8;
+  --map-state-active: #0284c7;
+  --map-state-active-border: #0369a1;
+  --map-text-color: #ffffff;
+
+  /* Cores Institucionais e Sanitárias */
+  --primary-navy: #0f2b48;
+  --primary-blue: #0284c7;
+  --primary-dark-blue: #0369a1;
+  --primary-light-blue: #e0f2fe;
+
+  /* Textos */
+  --text-main: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Bordas e Sombras */
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-primary);
+  line-height: 1.4;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   Header Compacto (Conforme solicitado)
+   ========================================================================== */
+.site-header {
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.45rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.logos-container {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.header-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-main-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  line-height: 1.15;
+}
+
+.brand-subtitle {
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.author-credit {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.author-credit strong {
+  color: var(--text-main);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.quick-search-wrap {
+  position: relative;
+  min-width: 190px;
+}
+
+.state-search-input {
+  width: 100%;
+  padding: 0.35rem 0.65rem 0.35rem 1.85rem;
+  font-size: 0.785rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition);
+}
+
+.state-search-input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.info-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.785rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.info-btn:hover {
+  background: var(--border-subtle);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   Container Principal e Layout (Mapa na Esquerda, Dados na Direita)
+   ========================================================================== */
+.app-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 1.25rem 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  transition: var(--transition);
+}
+
+/* Quando um estado está selecionado: MAPA NA ESQUERDA, DADOS NA DIREITA! */
+.workspace.has-state-selected {
+  grid-template-columns: 1fr 600px;
+}
+
+@media (max-width: 1120px) {
+  .workspace.has-state-selected {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Área do Mapa Central / Esquerda
+   ========================================================================== */
+.map-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  position: relative;
+  min-height: 480px;
+}
+
+.hero-instruction-banner {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  margin-bottom: 0.85rem;
+  width: 100%;
+  text-align: center;
+  font-size: 0.825rem;
+  color: #0369a1;
+}
+
+.hero-instruction-banner strong {
+  color: #0c4a6e;
+}
+
+.map-canvas-container {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+#brazil-svg {
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  display: block;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.04));
+}
+
+/* Estados no SVG (Cores Neutras e Não Chamativas) */
+.state-group {
+  cursor: pointer;
+  outline: none;
+  transition: filter 0.2s ease;
+}
+
+.state-group path {
+  fill: var(--map-state-default);
+  stroke: var(--map-state-border);
+  stroke-width: 1.2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
+.state-group .circle {
+  fill: var(--map-state-subtle);
+  stroke: var(--map-state-border);
+  stroke-width: 1.2px;
+  transition: fill 0.15s ease;
+}
+
+.state-group text {
+  fill: var(--map-text-color);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  user-select: none;
+}
+
+.state-group:hover path {
+  fill: var(--map-state-hover) !important;
+  stroke: #ffffff;
+  stroke-width: 1.6px;
+}
+
+.state-group:hover .circle {
+  fill: var(--map-state-hover) !important;
+}
+
+.state-group.active path {
+  fill: var(--map-state-active) !important;
+  stroke: var(--map-state-active-border);
+  stroke-width: 2px;
+}
+
+.state-group.active .circle {
+  fill: var(--map-state-active) !important;
+  stroke: var(--map-state-active-border);
+  stroke-width: 2px;
+}
+
+.map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  opacity: 0;
+  transform: translate(-50%, -120%);
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.map-tooltip.visible {
+  opacity: 1;
+}
+
+.tooltip-uf {
+  background: var(--primary-blue);
+  color: #fff;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.685rem;
+  margin-right: 0.25rem;
+}
+
+.map-legend-bar {
+  margin-top: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-swatch.default { background: var(--map-state-default); }
+.legend-swatch.hover { background: var(--map-state-hover); }
+.legend-swatch.active { background: var(--map-state-active); }
+
+/* ==========================================================================
+   Painel de Dados na DIREITA (Conforme solicitado)
+   ========================================================================== */
+.side-panel {
+  display: none;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.workspace.has-state-selected .side-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panel-header {
+  padding: 0.85rem 1.15rem;
+  background: linear-gradient(135deg, #0f2b48 0%, #1e3a5f 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.state-meta-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.state-uf-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+
+.state-title-wrap h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.state-subtitle-tags {
+  font-size: 0.75rem;
+  color: #93c5fd;
+}
+
+.close-panel-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.close-panel-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.panel-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   1. Escolha de Categoria de Análise (As 3 Opções)
+   ========================================================================== */
+.categories-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.categories-selector-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.category-tabs-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+
+.cat-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.4rem;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1.25;
+}
+
+.cat-tab-btn .tab-icon {
+  font-size: 1.1rem;
+}
+
+.cat-tab-btn:hover {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  background: var(--bg-subtle);
+}
+
+.cat-tab-btn.active {
+  background: var(--primary-navy);
+  color: #ffffff;
+  border-color: var(--primary-navy);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   2. Tabela de Dados Perfeitamente Alinhados (Valores Diretos + Unidades)
+   ========================================================================== */
+.norm-table-container {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-surface);
+}
+
+.norm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  text-align: left;
+}
+
+/* Cabeçalho das Colunas: Parâmetro | Estado | Brasil */
+.norm-table thead tr.head-titles th {
+  padding: 0.6rem 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-size: 0.725rem;
+  letter-spacing: 0.05em;
+}
+
+.norm-table th.th-param {
+  background: #1e293b;
+  width: 32%;
+}
+
+.norm-table th.th-state {
+  background: #0284c7;
+  width: 34%;
+}
+
+.norm-table th.th-brasil {
+  background: #0f2b48;
+  width: 34%;
+}
+
+/* Linha com os Links Oficiais das Normas */
+.norm-table tr.norm-ref-row td {
+  background: #f8fafc;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid var(--border-subtle);
+  font-size: 0.75rem;
+  vertical-align: middle;
+}
+
+.norm-table tr.norm-ref-row td.td-param {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.norm-link {
+  color: var(--primary-blue);
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.norm-link:hover {
+  text-decoration: underline;
+}
+
+/* Linhas dos Parâmetros */
+.norm-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.norm-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.norm-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.norm-table td {
+  padding: 0.55rem 0.75rem;
+  vertical-align: middle;
+}
+
+.norm-table td.td-param {
+  font-weight: 700;
+  color: var(--text-main);
+  background: #fafafa;
+  border-right: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.norm-table td.td-state {
+  font-weight: 600;
+  color: #0369a1;
+  border-right: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.norm-table td.td-brasil {
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   3. Seção SINISA ao Final (Depois da Escolha de Categoria)
+   ========================================================================== */
+.sinisa-section-bottom {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border-top: 3px solid #0284c7;
+}
+
+.sinisa-header-title {
+  padding: 0.65rem 0.85rem;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sinisa-content-wrap {
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sinisa-metric-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sinisa-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sinisa-bars-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sinisa-bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 45px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.725rem;
+}
+
+.bar-entity-name {
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sinisa-bar-track {
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.sinisa-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sinisa-bar-fill.state-bar {
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+}
+
+.sinisa-bar-fill.brasil-bar {
+  background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
+}
+
+.bar-pct-val {
+  font-weight: 700;
+  text-align: right;
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   Lista Minimalista ao Fundo da Tela (Separados por Região)
+   ========================================================================== */
+.bottom-regions-section {
+  margin-top: 1.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.bottom-regions-header {
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.5rem;
+}
+
+.bottom-regions-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+}
+
+.regions-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.85rem;
+}
+
+@media (max-width: 960px) {
+  .regions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .regions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.region-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.region-card-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary-navy);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.region-count-badge {
+  background: var(--border-strong);
+  color: var(--text-main);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-full);
+}
+
+.states-pills-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.state-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.725rem;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.state-pill-btn .pill-uf {
+  font-weight: 700;
+  font-size: 0.685rem;
+  background: var(--bg-subtle);
+  color: var(--primary-dark-blue);
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.state-pill-btn .pill-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.state-pill-btn:hover {
+  background: var(--primary-light-blue);
+  border-color: var(--primary-blue);
+  color: var(--primary-dark-blue);
+}
+
+.state-pill-btn.active {
+  background: var(--primary-blue);
+  color: #ffffff;
+  border-color: var(--primary-dark-blue);
+}
+
+.state-pill-btn.active .pill-uf {
+  background: #ffffff;
+  color: var(--primary-blue);
+}
+
+/* ==========================================================================
+   Modal Informativo
+   ========================================================================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-dialog {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  max-width: 600px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+}
+
+.modal-close-icon {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.modal-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.modal-body h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-top: 0.35rem;
+}
+
+/* Rodapé */
+.site-footer {
+  margin-top: 2rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.site-footer strong {
+  color: var(--text-main);
+}
